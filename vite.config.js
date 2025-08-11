@@ -4,7 +4,7 @@ import tailwind from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/', // For WordPress root deployment
+  base: '/myPortfolio/', // For GitHub Pages deployment
   plugins: [
     react({
       babel: {
