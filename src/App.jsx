@@ -357,8 +357,11 @@ const ProfileCardComponent = ({
 
     const handleClick = () => {
       if (!enableMobileTilt || location.protocol !== 'https:') return;
-      if (typeof window.DeviceMotionEvent.requestPermission === 'function') {
-        window.DeviceMotionEvent
+      if (
+        typeof window.DeviceOrientationEvent !== "undefined" &&
+        typeof window.DeviceOrientationEvent.requestPermission === "function"
+      ) {
+        window.DeviceOrientationEvent
           .requestPermission()
           .then(state => {
             if (state === 'granted') {
