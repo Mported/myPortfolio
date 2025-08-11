@@ -8,11 +8,14 @@
 }
 
 /* Reset */
-*,*:before,*:after{ box-sizing:border-box; border:0 solid }
+*,*:before,*:after{ box-sizing:border-box; border:0 solid; cursor:none!important; }
 body{
   margin:0; font-family:'Space Grotesk',sans-serif; background-image:var(--body-gradient);
   color:#fff; font-size:1.6rem; -webkit-font-smoothing:antialiased; overflow:hidden; cursor:none!important;
 }
+body, a, button, .cursor-target { cursor: none !important; }
+
+
 
 /* Stage */
 .meebits-orbital-container{
@@ -42,7 +45,6 @@ body{
   pointer-events: none;
   z-index: 9999;
   mix-blend-mode: difference;
-  transform: translate(-50%, -50%);
 }
 
 .target-cursor-dot {
