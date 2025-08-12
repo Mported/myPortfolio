@@ -1155,7 +1155,7 @@ const TargetCursor = ({
               </div>
               <div className="resume-preview">
                 <iframe
-                  src="/src/assets/miguelComonfortResumePortfolio.pdf"
+                  src="./miguelComonfortResumePortfolio.pdf"
                   width="100%"
                   height="100%"
                   style={{
@@ -1168,14 +1168,14 @@ const TargetCursor = ({
               </div>
               <div className="resume-actions">
                 <a
-                  href="/src/assets/miguelComonfortResumePortfolio.pdf"
+                  href="./miguelComonfortResumePortfolio.pdf"
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href="/src/assets/miguelComonfortResumePortfolio.pdf"
+                  href="./miguelComonfortResumePortfolio.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"

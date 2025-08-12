@@ -8,7 +8,7 @@ Place this in your active theme's functions.php or create a custom plugin
 add_action('init', 'portfolio_asset_handler');
 function portfolio_asset_handler() {
     // Check if request is for portfolio assets
-    $request_uri = $_SERVER['REQUEST_URI'];
+    $request_uri = sanitize_text_field($_SERVER['REQUEST_URI']);
     
     if (preg_match('/\/(assets\/|vite\.svg|.*\.gltf)/', $request_uri)) {
         // Let server handle these files directly
@@ -44,7 +44,12 @@ add_action('template_redirect', 'portfolio_template_redirect');
 function portfolio_template_redirect() {
     if (is_front_page()) {
         // Include the portfolio HTML content
-        include get_template_directory() . '/portfolio-template.php';
+        $template_path = get_template_directory() . '/portfolio-template.php';
+        if (file_exists($template_path) && strpos(realpath($template_path), realpath(get_template_directory())) === 0) {
+            include $template_path;
+        } else {
+            wp_die('Portfolio template not found or invalid path.');
+        }
         exit;
     }
 }
