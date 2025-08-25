@@ -12,7 +12,7 @@ body, html {
 }
 
 /* React Bits Target Cursor */
-.target-cursor {
+.target-cursor-wrapper {
   position: fixed;
   top: 0;
   left: 0;
@@ -22,10 +22,9 @@ body, html {
   z-index: 9999;
   mix-blend-mode: difference;
   transform: translate(-50%, -50%);
-  will-change: transform;
 }
 
-.cursor-dot {
+.target-cursor-dot {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -37,18 +36,7 @@ body, html {
   will-change: transform;
 }
 
-.corners-container {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0;
-  height: 0;
-  transform: translate(-50%, -50%);
-  transform-origin: center center;
-  will-change: transform;
-}
-
-.cursor-corner {
+.target-cursor-corner {
   position: absolute;
   left: 50%;
   top: 50%;
@@ -56,36 +44,30 @@ body, html {
   height: 12px;
   border: 3px solid #fff;
   will-change: transform;
-  transform-origin: center center;
 }
 
-/* L-shaped corners - proper positioning for rotation */
 .corner-tl {
   transform: translate(-150%, -150%);
   border-right: none;
   border-bottom: none;
-  transform-origin: center center;
 }
 
 .corner-tr {
   transform: translate(50%, -150%);
   border-left: none;
   border-bottom: none;
-  transform-origin: center center;
 }
 
 .corner-br {
   transform: translate(50%, 50%);
   border-left: none;
   border-top: none;
-  transform-origin: center center;
 }
 
 .corner-bl {
   transform: translate(-150%, 50%);
   border-right: none;
   border-top: none;
-  transform-origin: center center;
 }
 
 /* Mobile - hide cursor */
@@ -591,21 +573,7 @@ body {
   height: 100%;
   opacity: 0.08;
   mix-blend-mode: multiply;
-  background-image: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.12) 2px,
-      rgba(182, 229, 195, 0.12) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(182, 229, 195, 0.08) 2px,
-      rgba(182, 229, 195, 0.08) 4px
-    );
+  background-image: none;
   animation: grainShift 8s linear infinite;
   will-change: transform;
   transform: translateZ(0);
@@ -637,7 +605,6 @@ body {
   left: 0;
   width: 100%;
   height: 100vh;
-  background: var(--primary-bg);
   z-index: 1000;
   overflow: hidden;
   display: flex;
@@ -1097,21 +1064,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.01) 2px,
-      rgba(255, 255, 255, 0.01) 4px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 190, 11, 0.02) 2px,
-      rgba(255, 190, 11, 0.02) 4px
-    );
+  background: none;
   pointer-events: none;
   z-index: 1;
   mix-blend-mode: overlay;
@@ -1421,27 +1374,11 @@ body {
 }
 
 .section-subtitle::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -10px;
-  right: -10px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, var(--accent-yellow) 50%, transparent 100%);
-  transform: rotate(-1deg);
-  opacity: 0.6;
+  display: none;
 }
 
 .section-subtitle::after {
-  content: '';
-  position: absolute;
-  top: 20%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, var(--accent-orange) 0%, transparent 30%, transparent 70%, var(--accent-orange) 100%);
-  transform: skew(5deg);
-  opacity: 0.4;
+  display: none;
 }
 
 .section-description {
@@ -1571,32 +1508,7 @@ body {
 }
 
 .abstract-line {
-  position: absolute;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--accent-yellow), transparent);
-  transform-origin: left center;
-  animation: lineExpansion 2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-.abstract-line:nth-child(1) {
-  top: 20%;
-  left: 10%;
-  width: 0;
-  animation-delay: 0.2s;
-}
-
-.abstract-line:nth-child(2) {
-  top: 60%;
-  right: 15%;
-  width: 0;
-  animation-delay: 0.4s;
-}
-
-.abstract-line:nth-child(3) {
-  bottom: 30%;
-  left: 30%;
-  width: 0;
-  animation-delay: 0.6s;
+  display: none;
 }
 
 @keyframes lineExpansion {

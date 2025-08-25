@@ -6,25 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="source-map" content="external" />
     <title>Miguel Comonfort | Game Developer</title>
-    <script>
-      // Suppress source map errors from browser extensions
-      window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('source map') || 
-            e.filename && e.filename.includes('installHook')) {
-          e.preventDefault();
-          return true;
-        }
-      });
-      
-      // Suppress unhandled promise rejections from dev tools
-      window.addEventListener('unhandledrejection', function(e) {
-        if (e.reason && typeof e.reason === 'string' && 
-            (e.reason.includes('source map') || e.reason.includes('installHook'))) {
-          e.preventDefault();
-          return true;
-        }
-      });
-    </script>
+    
+    <!-- Preload critical assets that are immediately visible -->
+    <link rel="preload" href="/assets/IMG_3641.jpeg" as="image" />
   </head>
   <body>
     <div id="root"></div>
