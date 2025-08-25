@@ -1269,8 +1269,8 @@ const myPortfolio = () => {
           }}
         >
           <ProfileCard 
-            avatarUrl="/assets/IMG_3641.jpeg"
-            miniAvatarUrl="/assets/IMG_3641.jpeg"
+            avatarUrl="./assets/IMG_3641.jpeg"
+            miniAvatarUrl="./assets/IMG_3641.jpeg"
             name="Miguel Comonfort"
             title="Game Developer & Frontend Engineer"
             handle="miguelseaa"
@@ -1317,7 +1317,7 @@ const myPortfolio = () => {
               </div>
               <div className="resume-preview">
                 <iframe
-                  src="/assets/miguelComonfortResumePortfolio.pdf"
+                  src="./assets/miguelComonfortResumePortfolio.pdf"
                   width="100%"
                   height="100%"
                   style={{
@@ -1330,14 +1330,14 @@ const myPortfolio = () => {
               </div>
               <div className="resume-actions">
                 <a
-                  href="/assets/miguelComonfortResumePortfolio.pdf"
+                  href="./assets/miguelComonfortResumePortfolio.pdf"
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href="/assets/miguelComonfortResumePortfolio.pdf"
+                  href="./assets/miguelComonfortResumePortfolio.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"
@@ -1723,7 +1723,7 @@ const cardData = [
     title: "Client Request",
     description: "HTML site to help construction workers estimate cost around the Bay Area.",
     label: "Construction Calculator",
-    image: "/assets/constructionCalcSS.png",
+    image: "./assets/constructionCalcSS.png",
     link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
   },
   {
@@ -1731,7 +1731,7 @@ const cardData = [
     title: "React Portfolio",
     description: "Interactive portfolio website",
     label: "Web Dev",
-    image: "/assets/portfolioSS.png",
+    image: "./assets/portfolioSS.png",
     link: "https://mported.dev/"
   },
   {
@@ -1739,7 +1739,7 @@ const cardData = [
     title: "GalaDeer",
     description: "Playing Card Programmed in Lua",
     label: "Inspired by Marvel Snap",
-    image: "/assets/galadeerSS.jpg",
+    image: "./assets/galadeerSS.jpg",
     link: "https://github.com/Mported/Project3---GalaDeer"
   },
   {
@@ -1747,7 +1747,7 @@ const cardData = [
     title: "Severence : Get to the OTC!",
     description: "A game inspired by the show \"Severance\"",
     label: "JavaScript Game utilizing the Phaser Index",
-    image: "/assets/severenceSS.png",
+    image: "./assets/severenceSS.png",
     link: "https://mported.github.io/MakeAFakeFinal/"
   },
   {
@@ -1755,7 +1755,7 @@ const cardData = [
     title: "Solitaire",
     description: "Recreating one of my favorite games",
     label: "Programmed in Lua",
-    image: "/assets/solitaireSS.jpg",
+    image: "./assets/solitaireSS.jpg",
     link: "https://github.com/Mported/solitaireGame"
   },
   {
@@ -1763,7 +1763,7 @@ const cardData = [
     title: "LEBRON WATCH OUT",
     description: "Funny Lebron Game",
     label: "Phaser Index Work",
-    image: "/assets/lebronSS.png",
+    image: "./assets/lebronSS.png",
     link: "https://mported.github.io/endlessRunner/"
   },
 ];
