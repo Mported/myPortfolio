@@ -1,3 +1,8 @@
+/* ======================== */
+/* MAIN CONTAINER */
+/* Primary portfolio container with base styling */
+/* ======================== */
+
 .portfolio-container {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background: radial-gradient(ellipse at top, #e8f5e9 0%, #b9f6ca 50%, #a5d6a7 100%);
@@ -8,6 +13,11 @@
   contain: layout style paint;
   transform: translateZ(0);
 }
+
+/* ======================== */
+/* 3D CANVAS & EFFECTS */
+/* Three.js canvas and progress indicators */
+/* ======================== */
 
 .three-canvas {
   position: fixed;
@@ -44,6 +54,11 @@
   transition: opacity 0.5s ease;
   pointer-events: none;
 }
+
+/* ======================== */
+/* CONTENT SECTIONS */
+/* Portfolio section layout and transitions */
+/* ======================== */
 
 .portfolio-content {
   position: relative;
@@ -152,6 +167,11 @@
   transform: translate3d(0, 0, 0);
 }
 
+/* ======================== */
+/* TYPOGRAPHY */
+/* Headings, titles, and text styling */
+/* ======================== */
+
 .landingPage-title {
   font-size: 4.5rem;
   font-weight: 800;
@@ -211,6 +231,11 @@
   text-align: center;
 }
 
+/* ======================== */
+/* SKILLS COMPONENTS */
+/* Skills grid and progress bars */
+/* ======================== */
+
 .skills-grid {
   display: grid;
   gap: 1.5rem;
@@ -265,6 +290,11 @@
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
   animation: shimmer 2s infinite;
 }
+
+/* ======================== */
+/* PROJECT SHOWCASE */
+/* Project cards and grid layout */
+/* ======================== */
 
 .projects-grid {
   display: grid;
@@ -361,6 +391,11 @@
   border: 1px solid rgba(129, 199, 132, 0.2);
 }
 
+/* ======================== */
+/* INTERACTIVE ELEMENTS */
+/* Buttons, CTAs, and interactive components */
+/* ======================== */
+
 .cta-button {
   display: inline-block;
   padding: 1.2rem 2.5rem;
@@ -399,6 +434,11 @@
   box-shadow: 0 15px 35px rgba(129, 199, 132, 0.3);
 }
 
+/* ======================== */
+/* ANIMATIONS */
+/* Keyframe animations and transitions */
+/* ======================== */
+
 @keyframes gradientShift {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -429,6 +469,11 @@
 .floating-element {
   animation: parallaxFloat 6s ease-in-out infinite;
 }
+
+/* ======================== */
+/* NAVIGATION ELEMENTS */
+/* Section indicators and navigation aids */
+/* ======================== */
 
 .section-indicator {
   position: fixed;
@@ -504,6 +549,11 @@
   margin: 0 auto 1rem;
 }
 
+/* ======================== */
+/* UTILITY COMPONENTS */
+/* File upload, loading, and misc utilities */
+/* ======================== */
+
 .file-upload-section {
   margin-top: 2rem;
   padding: 1rem;
@@ -547,7 +597,11 @@
   font-weight: 600;
 }
 
+/* ======================== */
+/* ACCESSIBILITY & BASE STYLES */
 /* Base heading styles for accessibility compliance */
+/* ======================== */
+
 h1 {
   font-size: 3rem;
   font-weight: 700;
@@ -564,7 +618,11 @@ h2 {
   line-height: 1.3;
 }
 
-/* Flow Party Inspired Landing Page Styles */
+/* ======================== */
+/* FLOW PARTY LANDING */
+/* Enhanced landing page with particle effects */
+/* ======================== */
+
 .flow-party-landing {
   position: relative;
   overflow: hidden;
@@ -841,6 +899,11 @@ h2 {
 .floating-element {
   animation: parallaxFloat 6s ease-in-out infinite;
 }
+
+/* ======================== */
+/* RESPONSIVE DESIGN */
+/* Mobile and tablet adaptations */
+/* ======================== */
 
 @media (max-width: 768px) {
   .landingPage-title { font-size: 3rem; }

@@ -1,13 +1,22 @@
-/* Fonts */
+/* ======================== */
+/* FONTS & IMPORTS */
+/* External font imports and typography setup */
+/* ======================== */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
-/* Vars */
+/* ======================== */
+/* CSS VARIABLES */
+/* Global design tokens and color palette */
+/* ======================== */
 :root{
   --black:#000; --white:#fff; --body-gradient:linear-gradient(167.83deg,#19164b 8.06%,#302e96 90.32%);
   --cursor-accent:#00ff88;
 }
 
-/* Reset */
+/* ======================== */
+/* CSS RESET & BASE STYLES */
+/* Browser normalization and base element styling */
+/* ======================== */
 *,*:before,*:after{ box-sizing:border-box; border:0 solid; cursor:none!important; }
 body{
   margin:0; font-family:'Space Grotesk',sans-serif; background-image:var(--body-gradient);
@@ -17,7 +26,10 @@ body, a, button, .cursor-target { cursor: none !important; }
 
 
 
-/* Stage */
+/* ======================== */
+/* STAGE & BACKGROUND */
+/* Main viewport container and background effects */
+/* ======================== */
 .meebits-orbital-container{
   width:100vw; height:100vh; position:relative; background:#000; overflow:hidden;
   perspective:2000px; perspective-origin:50% 50%;
@@ -35,7 +47,10 @@ body, a, button, .cursor-target { cursor: none !important; }
 .particle{ position:absolute; width:2px; height:2px; background:rgba(255,255,255,.4); border-radius:50%; animation:float-up linear infinite }
 @keyframes float-up{ 0%{transform:translateY(100vh) rotate(0);opacity:0} 10%{opacity:.4} 90%{opacity:.4} 100%{transform:translateY(-50px) rotate(360deg);opacity:0} }
 
-/* ===== ReactBits Target Cursor ===== */
+/* ======================== */
+/* CURSOR SYSTEM */
+/* Custom animated cursor implementation */
+/* ======================== */
 .target-cursor-wrapper {
   position: fixed;
   top: 0;
@@ -92,7 +107,10 @@ body, a, button, .cursor-target { cursor: none !important; }
   border-right: none;
   border-top: none;
 }
-/* ===== Hexagonal Orbital Layout - Center Right ===== */
+/* ======================== */
+/* ORBITAL NAVIGATION LAYOUT */
+/* Hexagonal 3D navigation system */
+/* ======================== */
 .orbital-sections{
   position:fixed; 
   top:40%; 
@@ -258,7 +276,8 @@ body, a, button, .cursor-target { cursor: none !important; }
 
 
 /* ======================== */
-/* Loading Screen Styles */
+/* LOADING SCREEN */
+/* Initial loading screen with progress animation */
 /* ======================== */
 
 .loading-screen {
@@ -349,7 +368,8 @@ body, a, button, .cursor-target { cursor: none !important; }
 }
 
 /* ======================== */
-/* Dither Background effect */
+/* DITHER EFFECTS */
+/* WebGL-based visual effects and shaders */
 /* ======================== */
 
 .dither-container {
@@ -359,7 +379,8 @@ body, a, button, .cursor-target { cursor: none !important; }
 }
 
 /* ======================== */
-    /* Welcome Section */
+/* WELCOME SECTION */
+/* Landing page profile card styles */
 /* ======================== */
 
 :root {
@@ -943,19 +964,22 @@ body, a, button, .cursor-target { cursor: none !important; }
 }
 
 /* ======================== */
-    /* About Section */
+/* ABOUT SECTION */
+/* Personal information display styles */
 /* ======================== */
 
 
 
 
 /* ======================== */
-    /* Skills Section */
+/* SKILLS SECTION */
+/* Technical skills showcase styles */
 /* ======================== */
 
 
 /* ======================== */
-    /* My Work Section */
+/* PORTFOLIO SECTION */
+/* Project showcase with bento grid layout */
 /* ======================== */
 
 :root {
@@ -1204,7 +1228,8 @@ body, a, button, .cursor-target { cursor: none !important; }
 }
 
 /* ======================== */
-    /* Resume Section */
+/* RESUME SECTION */
+/* Resume display and download functionality */
 /* ======================== */
 
 .card-spotlight {
@@ -1307,7 +1332,8 @@ body, a, button, .cursor-target { cursor: none !important; }
 
 
 /* ======================== */
-    /* Contact Section */
+/* CONTACT SECTION */
+/* Contact information and infinite scroll */
 /* ======================== */
 
 .infinite-scroll-wrapper {

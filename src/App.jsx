@@ -1,20 +1,44 @@
+// ========================
+// DEPENDENCIES & IMPORTS
+// External libraries and local modules
+// ========================
+
+// React Core
 import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef } from 'react';
+
+// Animation Libraries
 import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
+import { Observer } from "gsap/Observer";
+
+// 3D Graphics
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { Observer } from "gsap/Observer";
+
+// Styles
 import './App.css';
 import './Dither.css';
 
+// Assets
+import constructionCalcSS from './assets/constructionCalcSS.png';
+import portfolioSS from './assets/portfolioSS.png';
+import galadeerSS from './assets/galadeerSS.jpg';
+import severenceSS from './assets/severenceSS.png';
+import solitaireSS from './assets/solitaireSS.jpg';
+import lebronSS from './assets/lebronSS.png';
+import avatarImg from './assets/IMG_3641.jpeg';
+import resumePDF from './assets/miguelComonfortResumePortfolio.pdf';
 
 
 
 
-/* ======================== */
-    /* Loading Screen Component */
-/* ======================== */
 
+// ========================
+// UTILITY COMPONENTS
+// Small reusable components
+// ========================
+
+// CountUp Animation Component
 const CountUpText = ({ targetNumber, duration = 2000, className = "" }) => {
   const [count, setCount] = useState(0);
   const countRef = useRef(0);
@@ -41,6 +65,11 @@ const CountUpText = ({ targetNumber, duration = 2000, className = "" }) => {
   );
 };
 
+
+// ========================
+// LOADING SCREEN COMPONENT
+// Initial loading screen with progress animation
+// ========================
 
 const LoadingScreen = ({ onLoadingComplete }) => {
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -142,6 +171,11 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     /* Target Cursor Component */
 /* ======================== */
 
+
+// ========================
+// CURSOR COMPONENT
+// Custom animated cursor system
+// ========================
 
 const TargetCursor = ({
   targetSelector = ".cursor-target",
@@ -486,6 +520,11 @@ const TargetCursor = ({
     /* Profile Card Component */
 /* ======================== */
 
+// ========================
+// PROFILE CARD CONSTANTS
+// Configuration and styling constants
+// ========================
+
 const DEFAULT_BEHIND_GRADIENT =
   "radial-gradient(farthest-side circle at var(--pointer-x) var(--pointer-y),hsla(150,100%,70%,var(--card-opacity)) 4%,hsla(150,80%,65%,calc(var(--card-opacity)*0.75)) 10%,hsla(150,60%,50%,calc(var(--card-opacity)*0.5)) 50%,hsla(150,40%,30%,0) 100%),radial-gradient(35% 52% at 55% 20%,#00ff88c4 0%,#073aff00 100%),radial-gradient(100% 100% at 50% 50%,#00ff88ff 1%,#073aff00 76%),conic-gradient(from 124deg at 50% 50%,#00ff88ff 0%,#00c1ffff 40%,#00c1ffff 60%,#00ff88ff 100%)";
 
@@ -517,6 +556,11 @@ const adjust = (
 
 const easeInOutCubic = (x) =>
   x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+
+// ========================
+// PROFILE CARD COMPONENT
+// Interactive holographic profile card
+// ========================
 
 const ProfileCardComponent = ({
   avatarUrl = "<Placeholder for avatar URL>",
@@ -838,6 +882,11 @@ const ProfileCardComponent = ({
 };
 
 const ProfileCard = React.memo(ProfileCardComponent);
+
+// ========================
+// MAIN APP COMPONENT
+// Portfolio application orchestrator
+// ========================
 
 const myPortfolio = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -1269,8 +1318,8 @@ const myPortfolio = () => {
           }}
         >
           <ProfileCard 
-            avatarUrl="./assets/IMG_3641.jpeg"
-            miniAvatarUrl="./assets/IMG_3641.jpeg"
+            avatarUrl={avatarImg}
+            miniAvatarUrl={avatarImg}
             name="Miguel Comonfort"
             title="Game Developer & Frontend Engineer"
             handle="miguelseaa"
@@ -1317,7 +1366,7 @@ const myPortfolio = () => {
               </div>
               <div className="resume-preview">
                 <iframe
-                  src="./assets/miguelComonfortResumePortfolio.pdf"
+                  src={resumePDF}
                   width="100%"
                   height="100%"
                   style={{
@@ -1455,6 +1504,12 @@ const myPortfolio = () => {
 /* Dither Background effect */
 /* ======================== */
 
+// ========================
+// SHADER DEFINITIONS
+// WebGL shaders for visual effects
+// ========================
+
+// Dither Effect Vertex Shader
 const ditherVertexShader = `
 varying vec2 vUv;
 void main() {
@@ -1553,6 +1608,12 @@ void main() {
 }
 `;
 
+// ========================
+// DITHER EFFECT COMPONENTS
+// Advanced visual effects using shaders
+// ========================
+
+// Simple Dither Component
 function SimpleDither({
   waveSpeed = 0.02,
   waveScale = 8.0,
@@ -1712,18 +1773,24 @@ export function Dither({
     /* My Work Section */
 /* ======================== */
 
+// ========================
+// BENTO GRID CONSTANTS
+// Configuration for the project showcase
+// ========================
+
 const DEFAULT_PARTICLE_COUNT = 12;
 const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = "132, 0, 255";
 const MOBILE_BREAKPOINT = 768;
 
+// Project Data Configuration
 const cardData = [
   {
     color: "#060010",
     title: "Client Request",
     description: "HTML site to help construction workers estimate cost around the Bay Area.",
     label: "Construction Calculator",
-    image: "./assets/constructionCalcSS.png",
+    image: constructionCalcSS,
     link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
   },
   {
@@ -1731,7 +1798,7 @@ const cardData = [
     title: "React Portfolio",
     description: "Interactive portfolio website",
     label: "Web Dev",
-    image: "./assets/portfolioSS.png",
+    image: portfolioSS,
     link: "https://mported.dev/"
   },
   {
@@ -1739,7 +1806,7 @@ const cardData = [
     title: "GalaDeer",
     description: "Playing Card Programmed in Lua",
     label: "Inspired by Marvel Snap",
-    image: "./assets/galadeerSS.jpg",
+    image: galadeerSS,
     link: "https://github.com/Mported/Project3---GalaDeer"
   },
   {
@@ -1747,7 +1814,7 @@ const cardData = [
     title: "Severence : Get to the OTC!",
     description: "A game inspired by the show \"Severance\"",
     label: "JavaScript Game utilizing the Phaser Index",
-    image: "./assets/severenceSS.png",
+    image: severenceSS,
     link: "https://mported.github.io/MakeAFakeFinal/"
   },
   {
@@ -1755,7 +1822,7 @@ const cardData = [
     title: "Solitaire",
     description: "Recreating one of my favorite games",
     label: "Programmed in Lua",
-    image: "./assets/solitaireSS.jpg",
+    image: solitaireSS,
     link: "https://github.com/Mported/solitaireGame"
   },
   {
@@ -1763,11 +1830,17 @@ const cardData = [
     title: "LEBRON WATCH OUT",
     description: "Funny Lebron Game",
     label: "Phaser Index Work",
-    image: "./assets/lebronSS.png",
+    image: lebronSS,
     link: "https://mported.github.io/endlessRunner/"
   },
 ];
 
+// ========================
+// BENTO GRID UTILITIES
+// Helper functions for particle and spotlight effects
+// ========================
+
+// Particle Creation Utility
 const createParticleElement = (
   x,
   y,
@@ -1812,6 +1885,12 @@ const updateCardGlowProperties = (
   card.style.setProperty("--glow-radius", `${radius}px`);
 };
 
+// ========================
+// BENTO GRID COMPONENTS
+// Interactive project showcase cards
+// ========================
+
+// Individual Project Card with Particles
 const ParticleCard = ({
   children,
   className = "",
@@ -2073,6 +2152,7 @@ const ParticleCard = ({
   );
 };
 
+// Global Spotlight Effect
 const GlobalSpotlight = ({
   gridRef,
   disableAnimations = false,
@@ -2218,6 +2298,7 @@ const GlobalSpotlight = ({
   return null;
 };
 
+// Main Bento Grid Container
 const BentoCardGrid = ({
   children,
   gridRef
@@ -2227,6 +2308,12 @@ const BentoCardGrid = ({
   </div>
 );
 
+// ========================
+// HOOKS & UTILITIES
+// Custom hooks and utility functions
+// ========================
+
+// Mobile Detection Hook
 const useMobileDetection = () => {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -2243,6 +2330,7 @@ const useMobileDetection = () => {
   return isMobile;
 };
 
+// Magic Bento Grid Main Component
 const MagicBento = ({
   textAutoHide = true,
   enableStars = true,
@@ -2463,6 +2551,12 @@ const MagicBento = ({
     /* Resume Section */
 /* ======================== */
 
+// ========================
+// SPOTLIGHT COMPONENTS
+// Interactive spotlight effect cards
+// ========================
+
+// Spotlight Card Component
 const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(255, 255, 255, 0.25)" }) => {
   const divRef = useRef(null);
 
@@ -2492,6 +2586,11 @@ const SpotlightCard = ({ children, className = "", spotlightColor = "rgba(255, 2
 /* ======================== */
 
 gsap.registerPlugin(Observer);
+
+// ========================
+// INFINITE SCROLL COMPONENT
+// Smooth scrolling contact section
+// ========================
 
 function InfiniteScroll({
   width = "30rem",
@@ -2713,5 +2812,10 @@ function InfiniteScroll({
     </>
   );
 }
+
+// ========================
+// EXPORT
+// Main application export
+// ========================
 
 export default myPortfolio;
