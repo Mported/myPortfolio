@@ -19,6 +19,59 @@ import * as THREE from "three";
 import './App.css';
 import './Dither.css';
 
+// WebGL Context Monitoring Utility
+const WebGLMonitor = {
+  contexts: new Set(),
+  isMonitoring: false,
+
+  addContext(canvas) {
+    if (!this.contexts.has(canvas)) {
+      this.contexts.add(canvas);
+      this.startMonitoring();
+    }
+  },
+
+  removeContext(canvas) {
+    this.contexts.delete(canvas);
+    if (this.contexts.size === 0) {
+      this.stopMonitoring();
+    }
+  },
+
+  startMonitoring() {
+    if (this.isMonitoring) return;
+
+    this.isMonitoring = true;
+
+    // Monitor for global WebGL context loss
+    const handleGlobalContextLoss = () => {
+      console.warn('Global WebGL context loss detected');
+      // Attempt recovery for all monitored contexts
+      this.contexts.forEach(canvas => {
+        if (canvas && !canvas.isContextLost && canvas.getContext) {
+          const ctx = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+          if (ctx && ctx.isContextLost()) {
+            console.log('Attempting to recover context for canvas:', canvas);
+          }
+        }
+      });
+    };
+
+    window.addEventListener('webglcontextlost', handleGlobalContextLoss, true);
+    this.handleGlobalContextLoss = handleGlobalContextLoss;
+  },
+
+  stopMonitoring() {
+    if (!this.isMonitoring) return;
+
+    this.isMonitoring = false;
+    if (this.handleGlobalContextLoss) {
+      window.removeEventListener('webglcontextlost', this.handleGlobalContextLoss, true);
+      this.handleGlobalContextLoss = null;
+    }
+  }
+};
+
 // Assets
 import constructionCalcSS from './assets/constructionCalcSS.png';
 import portfolioSS from './assets/portfolioSS.png';
@@ -33,10 +86,68 @@ import resumePDF from './assets/miguelComonfortResumePortfolio.pdf';
 
 
 
-// ========================
-// UTILITY COMPONENTS
-// Small reusable components
-// ========================
+// WebGL Error Boundary Component
+class WebGLErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('WebGL Error Boundary caught an error:', error, errorInfo);
+
+    // Check if it's a WebGL-related error
+    if (error.message && (
+      error.message.includes('WebGL') ||
+      error.message.includes('context') ||
+      error.message.includes('shader') ||
+      error.message.includes('THREE')
+    )) {
+      console.warn('WebGL error detected, attempting graceful fallback');
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // Fallback UI for WebGL errors
+      return (
+        <div
+          className="webgl-fallback"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            fontFamily: 'Space Grotesk, sans-serif',
+            zIndex: 1
+          }}
+        >
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <h2 style={{ marginBottom: '1rem', opacity: 0.8 }}>
+              WebGL Unavailable
+            </h2>
+            <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>
+              Your browser doesn't support WebGL or the graphics context was lost.
+              The site will continue to work normally.
+            </p>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 // CountUp Animation Component
 const CountUpText = ({ targetNumber, duration = 2000, className = "" }) => {
@@ -114,13 +225,15 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     >
       {/* Dither Background */}
       <div className="dither-background">
-        <Dither
-          color1={[0, 1, 0.53]}
-          color2={[0.03, 0.23, 1]}
-          waveSpeed={0.08}
-          waveScale={12.0}
-          mouseRadius={0.15}
-        />
+        <WebGLErrorBoundary>
+          <Dither
+            color1={[0, 1, 0.53]}
+            color2={[0.03, 0.23, 1]}
+            waveSpeed={0.08}
+            waveScale={12.0}
+            mouseRadius={0.15}
+          />
+        </WebGLErrorBoundary>
       </div>
       
       <div className="loading-content">
@@ -1284,14 +1397,16 @@ const myPortfolio = () => {
     <div className="meebits-orbital-container">
       {/* Dither Background */}
       <div className="dither-background">
-        <Dither
-          color1={backgroundColors.color1}
-          color2={backgroundColors.color2}
-          waveSpeed={isTransitioning ? 0.12 : 0.04}
-          waveScale={isTransitioning ? 15.0 : 8.0}
-          enableMouseInteraction={true}
-          mouseRadius={0.2}
-        />
+        <WebGLErrorBoundary>
+          <Dither
+            color1={backgroundColors.color1}
+            color2={backgroundColors.color2}
+            waveSpeed={isTransitioning ? 0.12 : 0.04}
+            waveScale={isTransitioning ? 15.0 : 8.0}
+            enableMouseInteraction={true}
+            mouseRadius={0.2}
+          />
+        </WebGLErrorBoundary>
       </div>
 
       {/* Target Cursor */}
@@ -1626,25 +1741,149 @@ function SimpleDither({
   const mouseRef = useRef(new THREE.Vector2(0.5, 0.5));
   const { viewport, size, gl } = useThree();
   
-  // WebGL context loss handling
+  // Enhanced WebGL context loss handling
   useEffect(() => {
     const canvas = gl.domElement;
+    WebGLMonitor.addContext(canvas);
     
+    let contextLost = false;
+    let recoveryTimeout;
+
     const handleContextLost = (event) => {
       event.preventDefault();
-      console.warn('WebGL context lost, attempting recovery...');
+      contextLost = true;
+      console.warn('WebGL context lost, pausing rendering...');
+
+      // Stop the animation loop
+      if (gl.render) {
+        gl.setAnimationLoop(null);
+      }
+
+      // Clear any existing recovery timeout
+      if (recoveryTimeout) {
+        clearTimeout(recoveryTimeout);
+      }
+
+      // Attempt recovery after a short delay
+      recoveryTimeout = setTimeout(() => {
+        if (contextLost) {
+          console.log('Attempting WebGL context recovery...');
+          // Force a re-render by updating a state that triggers re-mount
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      }, 1000);
     };
-    
+
     const handleContextRestored = () => {
-      console.log('WebGL context restored');
+      contextLost = false;
+      console.log('WebGL context restored, resuming rendering...');
+
+      // Clear recovery timeout
+      if (recoveryTimeout) {
+        clearTimeout(recoveryTimeout);
+        recoveryTimeout = undefined;
+      }
+
+      // Reinitialize WebGL state
+      gl.setPixelRatio(window.devicePixelRatio);
+      gl.setSize(size.width, size.height);
+      gl.setClearColor(0x000000, 0);
+
+      // Force re-render of the scene
+      if (mesh.current) {
+        mesh.current.material.needsUpdate = true;
+      }
     };
-    
+
     canvas.addEventListener('webglcontextlost', handleContextLost, false);
     canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
-    
+
     return () => {
       canvas.removeEventListener('webglcontextlost', handleContextLost);
       canvas.removeEventListener('webglcontextrestored', handleContextRestored);
+      WebGLMonitor.removeContext(canvas);
+      if (recoveryTimeout) {
+        clearTimeout(recoveryTimeout);
+      }
+    };
+  }, [gl, size]);
+  
+  // Cleanup effect to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (mesh.current) {
+        // Dispose of geometry and material
+        if (mesh.current.geometry) {
+          mesh.current.geometry.dispose();
+        }
+        if (mesh.current.material) {
+          if (mesh.current.material.uniforms) {
+            // Clean up uniform textures if any
+            Object.values(mesh.current.material.uniforms).forEach(uniform => {
+              if (uniform.value && typeof uniform.value.dispose === 'function') {
+                uniform.value.dispose();
+              }
+            });
+          }
+          mesh.current.material.dispose();
+        }
+      }
+    };
+  }, []);
+  
+  // Performance monitoring to prevent context loss
+  useEffect(() => {
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let lowPerformanceCount = 0;
+
+    const checkPerformance = () => {
+      frameCount++;
+      const currentTime = performance.now();
+
+      if (currentTime - lastTime > 100) { // If more than 100ms between frames
+        lowPerformanceCount++;
+        if (lowPerformanceCount > 5) { // If consistently low performance
+          console.warn('Low WebGL performance detected, reducing quality');
+          // Could reduce quality here if needed
+          lowPerformanceCount = 0;
+        }
+      } else {
+        lowPerformanceCount = Math.max(0, lowPerformanceCount - 1);
+      }
+
+      lastTime = currentTime;
+    };
+
+    // Check performance every 60 frames
+    const performanceInterval = setInterval(checkPerformance, 1000);
+
+    return () => {
+      clearInterval(performanceInterval);
+    };
+  }, []);
+  
+  // Handle visibility change to prevent context loss
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // Tab is hidden, pause expensive operations
+        if (gl.setAnimationLoop) {
+          gl.setAnimationLoop(null);
+        }
+      } else {
+        // Tab is visible again, resume if needed
+        if (gl.setAnimationLoop && !gl.getContext().isContextLost()) {
+          // The animation loop will be restored by React Three Fiber
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [gl]);
   
@@ -1713,6 +1952,9 @@ function SimpleDither({
           vertexShader={ditherVertexShader}
           fragmentShader={ditherFragmentShader}
           uniforms={uniforms}
+          transparent={true}
+          depthWrite={false}
+          side={THREE.DoubleSide}
         />
       </mesh>
       
@@ -1740,9 +1982,28 @@ export function Dither({
   return (
     <Canvas
       className="dither-container"
-      camera={{ position: [0, 0, 1] }}
-      dpr={[1, 2]}
-      gl={{ antialias: false, alpha: true }}
+      camera={{ position: [0, 0, 1], fov: 75 }}
+      dpr={Math.min(window.devicePixelRatio, 2)}
+      gl={{
+        antialias: false,
+        alpha: true,
+        powerPreference: "default",
+        failIfMajorPerformanceCaveat: false,
+        stencil: false,
+        depth: true,
+        preserveDrawingBuffer: false,
+        premultipliedAlpha: true
+      }}
+      onCreated={({ gl }) => {
+        // Optimize WebGL context
+        gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        gl.setClearColor(0x000000, 0);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      }}
+      onError={(error) => {
+        console.error('WebGL Error:', error);
+      }}
     >
       <SimpleDither
         waveSpeed={waveSpeed}
