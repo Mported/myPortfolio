@@ -260,7 +260,7 @@ body, a, button, .cursor-target { cursor: none !important; }
   .section-title-text{ font-size:clamp(1.8rem, 6vw, 3.5rem) }
   .orbital-sections{ left:50%; width:100vw; top:35%; }
   .section-details{ 
-    top:50; 
+    top:50%; 
     left:50%; 
     max-width:90vw; 
     padding:0 1rem; 
@@ -1109,12 +1109,22 @@ body, a, button, .cursor-target { cursor: none !important; }
 
 .card--text-autohide .card__title {
   -webkit-line-clamp: var(--clamp-title);
+  -webkit-line-clamp: var(--clamp-title);
+  /* modern spec (not widely supported yet) */
   line-clamp: var(--clamp-title);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .card--text-autohide .card__description {
   -webkit-line-clamp: var(--clamp-desc);
+  -webkit-line-clamp: var(--clamp-desc);
+  /* modern spec (not widely supported yet) */
   line-clamp: var(--clamp-desc);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 599px) {

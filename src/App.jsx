@@ -4,7 +4,7 @@
 // ========================
 
 // React Core
-import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef, Suspense } from 'react';
 
 // Animation Libraries
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,6 +14,7 @@ import { Observer } from "gsap/Observer";
 // 3D Graphics
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+const LazyDither = React.lazy(() => import('./components/Dither'));
 
 // Styles
 import './App.css';
@@ -73,21 +74,13 @@ const WebGLMonitor = {
 };
 
 // ========================
-// ASSET CONFIGURATION
-// Project images and media files (using public directory for deployment)
+// HYBRID ASSET SYSTEM
+// Import asset utilities for online/offline support
 // ========================
 
-// Asset paths - using public directory for better online compatibility
-const ASSETS = {
-  constructionCalcSS: '/assets/constructionCalcSS.png',
-  portfolioSS: '/assets/portfolioSS.png',
-  galadeerSS: '/assets/galadeerSS.jpg',
-  severenceSS: '/assets/severenceSS.png',
-  solitaireSS: '/assets/solitaireSS.jpg',
-  lebronSS: '/assets/lebronSS.png',
-  avatarImg: '/assets/IMG_3641.jpeg',
-  resumePDF: '/assets/miguelComonfortResumePortfolio.pdf'
-};
+import { ASSETS, useAssetLoader, preloadPortfolioAssets } from './utils/assetLoader.simple';
+import serviceWorker from './utils/serviceWorker';
+import DitherFallback from './components/DitherFallback';
 
 
 
@@ -112,15 +105,43 @@ class WebGLErrorBoundary extends React.Component {
       error.message.includes('WebGL') ||
       error.message.includes('context') ||
       error.message.includes('shader') ||
-      error.message.includes('THREE')
+      error.message.includes('THREE') ||
+      error.message.includes('gl.enable') ||
+      error.message.includes('gl.') ||
+      error.message.includes('Canvas')
     )) {
-      console.warn('WebGL error detected, attempting graceful fallback');
+      console.warn('WebGL error detected, showing fallback UI');
+      
+      // Clear any WebGL contexts to prevent further issues
+      if (typeof window !== 'undefined') {
+        setTimeout(() => {
+          const canvases = document.querySelectorAll('canvas');
+          canvases.forEach(canvas => {
+            try {
+              const ctx = canvas.getContext('webgl') || canvas.getContext('webgl2') || canvas.getContext('experimental-webgl');
+              if (ctx && ctx.getExtension) {
+                const loseContext = ctx.getExtension('WEBGL_lose_context');
+                if (loseContext) {
+                  loseContext.loseContext();
+                }
+              }
+            } catch (e) {
+              // Ignore errors during cleanup
+            }
+          });
+        }, 100);
+      }
     }
   }
 
   render() {
     if (this.state.hasError) {
-      // Fallback UI for WebGL errors
+      // Use custom fallback if provided, otherwise use default
+      if (this.props.fallback) {
+        return this.props.fallback;
+      }
+      
+      // Default fallback UI for WebGL errors
       return (
         <div
           className="webgl-fallback"
@@ -233,13 +254,15 @@ const LoadingScreen = ({ onLoadingComplete }) => {
       {/* Dither Background */}
       <div className="dither-background">
         <WebGLErrorBoundary>
-          <Dither
-            color1={[0, 1, 0.53]}
-            color2={[0.03, 0.23, 1]}
-            waveSpeed={0.08}
-            waveScale={12.0}
-            mouseRadius={0.15}
-          />
+          <Suspense fallback={null}>
+            <LazyDither
+              color1={[0, 1, 0.53]}
+              color2={[0.03, 0.23, 1]}
+              waveSpeed={0.08}
+              waveScale={12.0}
+              mouseRadius={0.15}
+            />
+          </Suspense>
         </WebGLErrorBoundary>
       </div>
       
@@ -1012,6 +1035,104 @@ const myPortfolio = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [backgroundColors, setBackgroundColors] = useState({ color1: [0.05, 0.05, 0.1], color2: [0.15, 0.2, 0.3] });
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  
+  // Asset loading hook
+  const { loadedAssets, loading: assetsLoading, errors: assetErrors, retryLoading } = useAssetLoader(ASSETS);
+
+  // Service Worker initialization (development disabled)
+  useEffect(() => {
+    const initializeAssets = async () => {
+      try {
+        // Only register service worker in production
+        if (serviceWorker.isSupported() && !import.meta.env.DEV) {
+          serviceWorker.register().catch(err => {
+            console.warn('Service Worker registration failed:', err);
+          });
+        }
+        
+        // Preload assets
+        await preloadPortfolioAssets();
+        setAssetsLoaded(true);
+        
+      } catch (error) {
+        console.warn('Asset initialization failed:', error);
+        setAssetsLoaded(true); // Still continue
+      }
+    };
+
+    initializeAssets();
+  }, []);
+
+  // Asset loading completion effect
+  useEffect(() => {
+    if (!assetsLoading && assetsLoaded) {
+      console.log('All assets loaded successfully');
+      
+      // Handle any asset errors
+      if (Object.keys(assetErrors).length > 0) {
+        console.warn('Some assets failed to load:', assetErrors);
+      }
+    }
+  }, [assetsLoading, assetsLoaded, assetErrors]);
+
+  // Helper function to get asset URL (with fallback to loaded assets)
+  const getAssetUrl = useCallback((assetKey) => {
+    // Use loaded asset if available, otherwise use the direct asset config
+    return loadedAssets[assetKey] || ASSETS[assetKey] || '';
+  }, [loadedAssets]);
+
+  // Project Data Configuration - moved inside component to access getAssetUrl
+  const cardData = useMemo(() => [
+    {
+      color: "#060010",
+      title: "Client Request",
+      description: "HTML site to help construction workers estimate cost around the Bay Area.",
+      label: "Construction Calculator",
+      image: getAssetUrl('constructionCalcSS'),
+      link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
+    },
+    {
+      color: "#060010",
+      title: "React Portfolio",
+      description: "Interactive portfolio website",
+      label: "Web Dev",
+      image: getAssetUrl('portfolioSS'),
+      link: "https://mported.dev/"
+    },
+    {
+      color: "#060010",
+      title: "GalaDeer",
+      description: "Playing Card Programmed in Lua",
+      label: "Inspired by Marvel Snap",
+      image: getAssetUrl('galadeerSS'),
+      link: "https://github.com/Mported/Project3---GalaDeer"
+    },
+    {
+      color: "#060010",
+      title: "Severence : Get to the OTC!",
+      description: "A game inspired by the show \"Severance\"",
+      label: "JavaScript Game utilizing the Phaser Index",
+      image: getAssetUrl('severenceSS'),
+      link: "https://mported.github.io/MakeAFakeFinal/"
+    },
+    {
+      color: "#060010",
+      title: "Solitaire",
+      description: "Recreating one of my favorite games",
+      label: "Programmed in Lua",
+      image: getAssetUrl('solitaireSS'),
+      link: "https://github.com/Mported/solitaireGame"
+    },
+    {
+      color: "#060010",
+      title: "LEBRON WATCH OUT",
+      description: "Funny Lebron Game",
+      label: "Phaser Index Work",
+      image: getAssetUrl('lebronSS'),
+      link: "https://mported.github.io/endlessRunner/"
+    },
+  ], [getAssetUrl]);
 
   // Helper function to convert hex to RGB array
   const hexToRgb = (hex) => {
@@ -1404,7 +1525,7 @@ const myPortfolio = () => {
     <div className="meebits-orbital-container">
       {/* Dither Background */}
       <div className="dither-background">
-        <WebGLErrorBoundary>
+        <WebGLErrorBoundary fallback={<DitherFallback color1={backgroundColors.color1} color2={backgroundColors.color2} />}>
           <Dither
             color1={backgroundColors.color1}
             color2={backgroundColors.color2}
@@ -1440,8 +1561,8 @@ const myPortfolio = () => {
           }}
         >
           <ProfileCard 
-            avatarUrl={ASSETS.avatarImg}
-            miniAvatarUrl={ASSETS.avatarImg}
+            avatarUrl={getAssetUrl('avatarImg')}
+            miniAvatarUrl={getAssetUrl('avatarImg')}
             name="Miguel Comonfort"
             title="Game Developer & Frontend Engineer"
             handle="miguelseaa"
@@ -1488,7 +1609,7 @@ const myPortfolio = () => {
               </div>
               <div className="resume-preview">
                 <iframe
-                  src={ASSETS.resumePDF}
+                  src={getAssetUrl('resumePDF')}
                   width="100%"
                   height="100%"
                   style={{
@@ -1501,14 +1622,14 @@ const myPortfolio = () => {
               </div>
               <div className="resume-actions">
                 <a
-                  href={ASSETS.resumePDF}
+                  href={getAssetUrl('resumePDF')}
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href={ASSETS.resumePDF}
+                  href={getAssetUrl('resumePDF')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"
@@ -1548,6 +1669,7 @@ const myPortfolio = () => {
             enableTilt={true}
             enableMagnetism={true}
             clickEffect={true}
+            cardData={cardData}
           />
         </motion.div>
       )}
@@ -2002,11 +2124,27 @@ export function Dither({
         premultipliedAlpha: true
       }}
       onCreated={({ gl }) => {
-        // Optimize WebGL context
-        gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        gl.setClearColor(0x000000, 0);
-        gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        try {
+          // Optimize WebGL context with error checking
+          if (!gl || typeof gl.setPixelRatio !== 'function') {
+            console.warn('WebGL context is not properly initialized');
+            return;
+          }
+          
+          gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          gl.setClearColor(0x000000, 0);
+          
+          // Check if gl methods exist before calling
+          if (typeof gl.enable === 'function' && gl.BLEND !== undefined) {
+            gl.enable(gl.BLEND);
+          }
+          
+          if (typeof gl.blendFunc === 'function' && gl.SRC_ALPHA !== undefined && gl.ONE_MINUS_SRC_ALPHA !== undefined) {
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          }
+        } catch (error) {
+          console.error('Error setting up WebGL context:', error);
+        }
       }}
       onError={(error) => {
         console.error('WebGL Error:', error);
@@ -2051,57 +2189,6 @@ const DEFAULT_SPOTLIGHT_RADIUS = 300;
 const DEFAULT_GLOW_COLOR = "132, 0, 255";
 const MOBILE_BREAKPOINT = 768;
 
-// Project Data Configuration
-const cardData = [
-  {
-    color: "#060010",
-    title: "Client Request",
-    description: "HTML site to help construction workers estimate cost around the Bay Area.",
-    label: "Construction Calculator",
-    image: ASSETS.constructionCalcSS,
-    link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
-  },
-  {
-    color: "#060010",
-    title: "React Portfolio",
-    description: "Interactive portfolio website",
-    label: "Web Dev",
-    image: ASSETS.portfolioSS,
-    link: "https://mported.dev/"
-  },
-  {
-    color: "#060010",
-    title: "GalaDeer",
-    description: "Playing Card Programmed in Lua",
-    label: "Inspired by Marvel Snap",
-    image: ASSETS.galadeerSS,
-    link: "https://github.com/Mported/Project3---GalaDeer"
-  },
-  {
-    color: "#060010",
-    title: "Severence : Get to the OTC!",
-    description: "A game inspired by the show \"Severance\"",
-    label: "JavaScript Game utilizing the Phaser Index",
-    image: ASSETS.severenceSS,
-    link: "https://mported.github.io/MakeAFakeFinal/"
-  },
-  {
-    color: "#060010",
-    title: "Solitaire",
-    description: "Recreating one of my favorite games",
-    label: "Programmed in Lua",
-    image: ASSETS.solitaireSS,
-    link: "https://github.com/Mported/solitaireGame"
-  },
-  {
-    color: "#060010",
-    title: "LEBRON WATCH OUT",
-    description: "Funny Lebron Game",
-    label: "Phaser Index Work",
-    image: ASSETS.lebronSS,
-    link: "https://mported.github.io/endlessRunner/"
-  },
-];
 
 // ========================
 // BENTO GRID UTILITIES
@@ -2611,10 +2698,14 @@ const MagicBento = ({
   glowColor = DEFAULT_GLOW_COLOR,
   clickEffect = true,
   enableMagnetism = true,
+  cardData: propsCardData = null,
 }) => {
   const gridRef = useRef(null);
   const isMobile = useMobileDetection();
   const shouldDisableAnimations = disableAnimations || isMobile;
+
+  // Use passed-in card data if provided (fixes undefined cardData after remounts)
+  const cards = propsCardData || cardData;
 
   return (
     <>
@@ -2629,7 +2720,7 @@ const MagicBento = ({
       )}
 
       <BentoCardGrid gridRef={gridRef}>
-        {cardData.map((card, index) => {
+  {cards.map((card, index) => {
           const baseClassName = `card ${textAutoHide ? "card--text-autohide" : ""} ${enableBorderGlow ? "card--border-glow" : ""}`;
           const cardProps = {
             className: baseClassName,
@@ -2681,11 +2772,26 @@ const MagicBento = ({
                 cursor: card.link ? 'pointer' : 'default'
               }}
               ref={(el) => {
+                // Attach pointer-based handlers safely and avoid duplicates
                 if (!el) return;
 
-                const handleMouseMove = (e) => {
-                  if (shouldDisableAnimations) return;
+                // Use a map on the element to store handlers so we can cleanly remove them
+                if (!el._handlerMap) el._handlerMap = {};
 
+                // Remove existing listeners if reassigning
+                const removeIfExists = (name, type) => {
+                  if (el._handlerMap[name]) {
+                    el.removeEventListener(type, el._handlerMap[name]);
+                    delete el._handlerMap[name];
+                  }
+                };
+
+                removeIfExists('pointermove', 'pointermove');
+                removeIfExists('pointerleave', 'pointerleave');
+                removeIfExists('pointerdown', 'pointerdown');
+
+                const handlePointerMove = (e) => {
+                  if (shouldDisableAnimations) return;
                   const rect = el.getBoundingClientRect();
                   const x = e.clientX - rect.left;
                   const y = e.clientY - rect.top;
@@ -2698,32 +2804,32 @@ const MagicBento = ({
                     gsap.to(el, {
                       rotateX,
                       rotateY,
-                      duration: 0.1,
+                      duration: 0.12,
                       ease: "power2.out",
                       transformPerspective: 1000,
                     });
                   }
 
                   if (enableMagnetism) {
-                    const magnetX = (x - centerX) * 0.05;
-                    const magnetY = (y - centerY) * 0.05;
+                    const magnetX = (x - centerX) * 0.04;
+                    const magnetY = (y - centerY) * 0.04;
                     gsap.to(el, {
                       x: magnetX,
                       y: magnetY,
-                      duration: 0.3,
+                      duration: 0.25,
                       ease: "power2.out",
                     });
                   }
                 };
 
-                const handleMouseLeave = () => {
+                const handlePointerLeave = () => {
                   if (shouldDisableAnimations) return;
 
                   if (enableTilt) {
                     gsap.to(el, {
                       rotateX: 0,
                       rotateY: 0,
-                      duration: 0.3,
+                      duration: 0.35,
                       ease: "power2.out",
                     });
                   }
@@ -2732,19 +2838,18 @@ const MagicBento = ({
                     gsap.to(el, {
                       x: 0,
                       y: 0,
-                      duration: 0.3,
+                      duration: 0.35,
                       ease: "power2.out",
                     });
                   }
                 };
 
-                const handleClick = (e) => {
+                const handlePointerDown = (e) => {
                   // Handle link redirect first
                   if (card.link) {
                     window.open(card.link, '_blank');
                   }
 
-                  // Then handle ripple effect
                   if (!clickEffect || shouldDisableAnimations) return;
 
                   const rect = el.getBoundingClientRect();
@@ -2775,23 +2880,19 @@ const MagicBento = ({
 
                   gsap.fromTo(
                     ripple,
-                    {
-                      scale: 0,
-                      opacity: 1,
-                    },
-                    {
-                      scale: 1,
-                      opacity: 0,
-                      duration: 0.8,
-                      ease: "power2.out",
-                      onComplete: () => ripple.remove(),
-                    }
+                    { scale: 0, opacity: 1 },
+                    { scale: 1, opacity: 0, duration: 0.7, ease: "power2.out", onComplete: () => ripple.remove() }
                   );
                 };
 
-                el.addEventListener("mousemove", handleMouseMove);
-                el.addEventListener("mouseleave", handleMouseLeave);
-                el.addEventListener("click", handleClick);
+                // Store and attach
+                el._handlerMap.pointermove = handlePointerMove;
+                el._handlerMap.pointerleave = handlePointerLeave;
+                el._handlerMap.pointerdown = handlePointerDown;
+
+                el.addEventListener('pointermove', handlePointerMove);
+                el.addEventListener('pointerleave', handlePointerLeave);
+                el.addEventListener('pointerdown', handlePointerDown);
               }}
             >
               {card.image && (
