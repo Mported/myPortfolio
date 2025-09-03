@@ -72,15 +72,22 @@ const WebGLMonitor = {
   }
 };
 
-// Assets
-import constructionCalcSS from './assets/constructionCalcSS.png';
-import portfolioSS from './assets/portfolioSS.png';
-import galadeerSS from './assets/galadeerSS.jpg';
-import severenceSS from './assets/severenceSS.png';
-import solitaireSS from './assets/solitaireSS.jpg';
-import lebronSS from './assets/lebronSS.png';
-import avatarImg from './assets/IMG_3641.jpeg';
-import resumePDF from './assets/miguelComonfortResumePortfolio.pdf';
+// ========================
+// ASSET CONFIGURATION
+// Project images and media files (using public directory for deployment)
+// ========================
+
+// Asset paths - using public directory for better online compatibility
+const ASSETS = {
+  constructionCalcSS: '/assets/constructionCalcSS.png',
+  portfolioSS: '/assets/portfolioSS.png',
+  galadeerSS: '/assets/galadeerSS.jpg',
+  severenceSS: '/assets/severenceSS.png',
+  solitaireSS: '/assets/solitaireSS.jpg',
+  lebronSS: '/assets/lebronSS.png',
+  avatarImg: '/assets/IMG_3641.jpeg',
+  resumePDF: '/assets/miguelComonfortResumePortfolio.pdf'
+};
 
 
 
@@ -1433,8 +1440,8 @@ const myPortfolio = () => {
           }}
         >
           <ProfileCard 
-            avatarUrl={avatarImg}
-            miniAvatarUrl={avatarImg}
+            avatarUrl={ASSETS.avatarImg}
+            miniAvatarUrl={ASSETS.avatarImg}
             name="Miguel Comonfort"
             title="Game Developer & Frontend Engineer"
             handle="miguelseaa"
@@ -1481,7 +1488,7 @@ const myPortfolio = () => {
               </div>
               <div className="resume-preview">
                 <iframe
-                  src={resumePDF}
+                  src={ASSETS.resumePDF}
                   width="100%"
                   height="100%"
                   style={{
@@ -1494,14 +1501,14 @@ const myPortfolio = () => {
               </div>
               <div className="resume-actions">
                 <a
-                  href="./assets/miguelComonfortResumePortfolio.pdf"
+                  href={ASSETS.resumePDF}
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href="./assets/miguelComonfortResumePortfolio.pdf"
+                  href={ASSETS.resumePDF}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"
@@ -2051,7 +2058,7 @@ const cardData = [
     title: "Client Request",
     description: "HTML site to help construction workers estimate cost around the Bay Area.",
     label: "Construction Calculator",
-    image: constructionCalcSS,
+    image: ASSETS.constructionCalcSS,
     link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
   },
   {
@@ -2059,7 +2066,7 @@ const cardData = [
     title: "React Portfolio",
     description: "Interactive portfolio website",
     label: "Web Dev",
-    image: portfolioSS,
+    image: ASSETS.portfolioSS,
     link: "https://mported.dev/"
   },
   {
@@ -2067,7 +2074,7 @@ const cardData = [
     title: "GalaDeer",
     description: "Playing Card Programmed in Lua",
     label: "Inspired by Marvel Snap",
-    image: galadeerSS,
+    image: ASSETS.galadeerSS,
     link: "https://github.com/Mported/Project3---GalaDeer"
   },
   {
@@ -2075,7 +2082,7 @@ const cardData = [
     title: "Severence : Get to the OTC!",
     description: "A game inspired by the show \"Severance\"",
     label: "JavaScript Game utilizing the Phaser Index",
-    image: severenceSS,
+    image: ASSETS.severenceSS,
     link: "https://mported.github.io/MakeAFakeFinal/"
   },
   {
@@ -2083,7 +2090,7 @@ const cardData = [
     title: "Solitaire",
     description: "Recreating one of my favorite games",
     label: "Programmed in Lua",
-    image: solitaireSS,
+    image: ASSETS.solitaireSS,
     link: "https://github.com/Mported/solitaireGame"
   },
   {
@@ -2091,7 +2098,7 @@ const cardData = [
     title: "LEBRON WATCH OUT",
     description: "Funny Lebron Game",
     label: "Phaser Index Work",
-    image: lebronSS,
+    image: ASSETS.lebronSS,
     link: "https://mported.github.io/endlessRunner/"
   },
 ];
