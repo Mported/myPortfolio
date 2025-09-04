@@ -10,14 +10,10 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('three') || id.includes('@react-three')) return 'three-vendors';
-            if (id.includes('framer-motion')) return 'framer-motion';
-            if (id.includes('gsap')) return 'gsap';
-            if (id.includes('react') || id.includes('react-dom')) return 'react-vendors';
-            return 'vendor';
-          }
+        manualChunks: {
+          'react-vendors': ['react', 'react-dom'],
+          'animation-vendors': ['framer-motion', 'gsap'],
+          'three-vendors': ['three', '@react-three/fiber', '@react-three/drei']
         }
       }
     },
