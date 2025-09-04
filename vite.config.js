@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/', // GitHub Pages root deployment
+  base: '/myPortfolio/', // GitHub Pages project repository deployment
   plugins: [react()],
   build: {
     sourcemap: false, // Disable source maps to prevent parsing errors
