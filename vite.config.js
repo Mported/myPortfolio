@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/myPortfolio/', // GitHub Pages repository name (repo: Mported/myPortfolio)
+  base: '/', // GitHub Pages root deployment
   plugins: [react({
     babel: {
       plugins: [['styled-jsx/babel', { optimizeForSpeed: true }]]
