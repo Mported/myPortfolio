@@ -590,7 +590,6 @@ const TargetCursor = ({
   spinDuration = 2,
   hideDefaultCursor = true,
   transitionActive = true,
-  sectionKey,
 }) => {
   const cursorRef = useRef(null);
   const dotRef = useRef(null);
@@ -750,7 +749,7 @@ const TargetCursor = ({
       document.removeEventListener('mousedown', handleMouseDown);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [targetSelector, spinDuration, hideDefaultCursor, transitionActive, sectionKey]);
+  }, [targetSelector, spinDuration, hideDefaultCursor, transitionActive]);
 
   return (
     <div ref={cursorRef} className="target-cursor-wrapper">
@@ -1086,8 +1085,7 @@ const TargetCursor = ({
   targetSelector=".cursor-target"
   spinDuration={2}
   hideDefaultCursor={true}
-  transitionActive={isTransitioning}      // NEW
-  sectionKey={currentSectionIndex}        // NEW
+  transitionActive={isTransitioning}
 />
 
       {/* Profile Card - Only on Welcome Section */}
@@ -1168,14 +1166,14 @@ const TargetCursor = ({
               </div>
               <div className="resume-actions">
                 <a
-                  href="/src/assets/miguelComonfortResumePortfolio.pdf"
+                  href="./miguelComonfortResumePortfolio.pdf"
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href="/src/assets/miguelComonfortResumePortfolio.pdf"
+                  href="./miguelComonfortResumePortfolio.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"
