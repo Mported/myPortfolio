@@ -199,13 +199,14 @@ body, a, button, .cursor-target { cursor: none !important; }
 
 /* Details - Center of Page */
 .section-details{
-  position:fixed; 
+  position:fixed;
   top:50%;
-  left:50%; 
+  left:50%;
   transform:translate(-50%,-50%);
-  text-align:center; 
-  z-index:25; 
-  max-width:600px; 
+  text-align:center;
+  z-index:25;
+  max-width:800px;
+  width:90vw;
   padding:0 2rem;
 }
 .details-content{ display:flex; flex-direction:column; align-items:center; gap:1rem }
@@ -219,13 +220,16 @@ body, a, button, .cursor-target { cursor: none !important; }
   text-shadow:0 0 20px currentColor;
 }
 .section-description{
-  font-family:'Space Grotesk',sans-serif; 
-  font-size:clamp(.95rem,1.9vw,1.25rem); 
-  font-weight:500; 
-  line-height:1.6; 
-  color:rgba(255,255,255,.85); 
-  margin:0; 
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(.95rem,1.9vw,1.25rem);
+  font-weight:500;
+  line-height:1.6;
+  color:rgba(255,255,255,.85);
+  margin:0;
   text-align:center;
+  white-space: nowrap;
+  overflow-wrap: break-word;
+  word-break: keep-all;
 }
 
 /* Hints + chrome */

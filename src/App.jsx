@@ -4,7 +4,7 @@
 // ========================
 
 // React Core
-import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, useMemo, useCallback, forwardRef, Suspense, lazy } from 'react';
 
 // Animation Libraries
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,9 +15,13 @@ import { Observer } from "gsap/Observer";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
+
 // Styles
 import './App.css';
 import './Dither.css';
+
+// Lazy-load Dither for performance
+const Dither = lazy(() => import('./components/Dither'));
 
 
 
@@ -104,13 +108,17 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     >
       {/* Dither Background */}
       <div className="dither-background">
-        <Dither
-          color1={[0, 1, 0.53]}
-          color2={[0.03, 0.23, 1]}
-          waveSpeed={0.08}
-          waveScale={12.0}
-          mouseRadius={0.15}
-        />
+        <Suspense fallback={null}>
+          <Dither
+            color1={[0, 1, 0.53]}
+            color2={[0.03, 0.23, 1]}
+            pixelSize={2.5}
+            ditherIntensity={0.12}
+            gradientStrength={1.8}
+            animated={true}
+            waveSpeed={0.4}
+          />
+        </Suspense>
       </div>
       
       <div className="loading-content">
@@ -120,7 +128,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
         >
-          <h1>Entering the unknown</h1>
+          <h1>Welcome User</h1>
           <p>{loadingText}</p>
         </motion.div>
         
@@ -920,7 +928,7 @@ const myPortfolio = () => {
   const sections = [
     { id: 0, title: "WELCOME",    subtitle: "MIGUEL A. COMONFORT",  description: "Game Developer & Front End Engineer", color: "#00ff88" },
     { id: 1, title: "ABOUT",      subtitle: "WHO I AM",   description: "My name is Miguel A. Comonfort and I'm from the Bay Area. I am a recent graduate from UCSC with a Bacherlors of Science in Computer Science Game Design. My focus is Game Design and Front end Development. When im not suffering debugging my code I have a mixture of interest including playing games like League, Skateboarding, playing tennis, and playing the Alto Saxaphone.", color: "#ff6b6b" },
-    { id: 2, title: "SKILLS",     subtitle: "Skills",  description: "Unity • Unreal Engine • React • C# • JavaScript • Lua • C++", color: "#4ecdc4" },
+    { id: 2, title: "SKILLS",     subtitle: "Skills",  description: "Unity • Unreal Engine • React • C# • JavaScript • Lua • C++ • Blender • Photoshop", color: "#4ecdc4" },
     { id: 3, title: "MY WORK",    subtitle: "",    description: "", color: "#f9ca24" },
     { id: 4, title: "RESUME", subtitle: "", description: "", color: "#6c5ce7" },
     { id: 5, title: "CONNECT",    subtitle: "", description: "", color: "#a29bfe" }
@@ -928,33 +936,33 @@ const myPortfolio = () => {
 
   // Contact items for infinite scroll
   const contactItems = [
-    { 
-      content: "📧 Email Me!", 
+    {
+      content: "📧 Email Me!",
       link: "mailto:erqmac@gmail.com",
       type: "email"
     },
-    { 
-      content: "🔗 My LinkedIn", 
+    {
+      content: "🔗 My LinkedIn",
       link: "https://linkedin.com/in/miguelcomonfort",
       type: "external"
     },
-    { 
-      content: "🐙 My GitHub", 
+    {
+      content: "🐙 My GitHub",
       link: "https://github.com/Mported",
       type: "external"
     },
-    { 
-      content: "💼 Available for freelance work", 
+    {
+      content: "💼 Available for freelance work",
       link: "mailto:erqmac@gmail.com?subject=Freelance Project Inquiry",
       type: "email"
     },
-    { 
-      content: "🚀 Wanna Collaborate?", 
+    {
+      content: "🚀 Wanna Collaborate?",
       link: "mailto:erqmac@gmail.com?subject=Project Collaboration",
       type: "email"
     },
-    { 
-      content: "📱 My Instagram!", 
+    {
+      content: "📱 My Instagram!",
       link: "https://instagram.com/miguelseaa",
       type: "external"
     },
@@ -1277,10 +1285,11 @@ const myPortfolio = () => {
         <Dither
           color1={backgroundColors.color1}
           color2={backgroundColors.color2}
-          waveSpeed={isTransitioning ? 0.12 : 0.04}
-          waveScale={isTransitioning ? 15.0 : 8.0}
-          enableMouseInteraction={true}
-          mouseRadius={0.2}
+          pixelSize={isTransitioning ? 1.8 : 2.2}
+          ditherIntensity={isTransitioning ? 0.16 : 0.1}
+          gradientStrength={isTransitioning ? 2.2 : 1.6}
+          animated={true}
+          waveSpeed={isTransitioning ? 0.6 : 0.35}
         />
       </div>
 
@@ -1308,8 +1317,8 @@ const myPortfolio = () => {
           }}
         >
           <ProfileCard 
-            avatarUrl="./assets/IMG_3641.jpeg"
-            miniAvatarUrl="./assets/IMG_3641.jpeg"
+            avatarUrl="/IMG_3641.jpeg"
+            miniAvatarUrl="/IMG_3641.jpeg"
             name="Miguel Comonfort"
             title="Game Developer & Frontend Engineer"
             handle="miguelseaa"
@@ -1356,7 +1365,7 @@ const myPortfolio = () => {
               </div>
               <div className="resume-preview">
                 <iframe
-                  src="./assets/miguelComonfortResumePortfolio.pdf"
+                  src="/miguelComonfortResumePortfolio.pdf"
                   width="100%"
                   height="100%"
                   style={{
@@ -1369,14 +1378,14 @@ const myPortfolio = () => {
               </div>
               <div className="resume-actions">
                 <a
-                  href="./assets/miguelComonfortResumePortfolio.pdf"
+                  href="/miguelComonfortResumePortfolio.pdf"
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href="./assets/miguelComonfortResumePortfolio.pdf"
+                  href="/miguelComonfortResumePortfolio.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"
@@ -1603,148 +1612,7 @@ void main() {
 // Advanced visual effects using shaders
 // ========================
 
-// Simple Dither Component
-function SimpleDither({
-  waveSpeed = 0.02,
-  waveScale = 8.0,
-  color1 = [0.1, 0.1, 0.2],
-  color2 = [0.3, 0.4, 0.5],
-  enableMouseInteraction = true,
-  mouseRadius = 0.2,
-}) {
-  const mesh = useRef();
-  const mouseRef = useRef(new THREE.Vector2(0.5, 0.5));
-  const { viewport, size, gl } = useThree();
-  
-  // WebGL context loss handling
-  useEffect(() => {
-    const canvas = gl.domElement;
-    
-    const handleContextLost = (event) => {
-      event.preventDefault();
-      console.warn('WebGL context lost, attempting recovery...');
-    };
-    
-    const handleContextRestored = () => {
-      console.log('WebGL context restored');
-    };
-    
-    canvas.addEventListener('webglcontextlost', handleContextLost, false);
-    canvas.addEventListener('webglcontextrestored', handleContextRestored, false);
-    
-    return () => {
-      canvas.removeEventListener('webglcontextlost', handleContextLost);
-      canvas.removeEventListener('webglcontextrestored', handleContextRestored);
-    };
-  }, [gl]);
-  
-  // Track previous colors to detect changes
-  const prevColors = useRef({ color1: [...color1], color2: [...color2] });
-
-  // Create uniforms with initial values - remove size dependency to make it reactive
-  const uniforms = useMemo(() => ({
-    u_time: { value: 0 },
-    u_resolution: { value: new THREE.Vector2(size.width, size.height) },
-    u_color1: { value: new THREE.Color(...color1) },
-    u_color2: { value: new THREE.Color(...color2) },
-    u_speed: { value: waveSpeed },
-    u_scale: { value: waveScale },
-    u_mouse: { value: mouseRef.current },
-    u_mouseRadius: { value: mouseRadius },
-    u_enableMouse: { value: enableMouseInteraction },
-  }), []);
-
-  // Animate color changes smoothly
-  useFrame(({ clock }) => {
-    if (mesh.current) {
-      uniforms.u_time.value = clock.getElapsedTime();
-      uniforms.u_resolution.value.set(size.width, size.height);
-      
-      // Create target colors
-      const targetColor1 = new THREE.Color(...color1);
-      const targetColor2 = new THREE.Color(...color2);
-      
-      // Check if colors have changed significantly
-      const color1Changed = prevColors.current.color1.some((c, i) => Math.abs(c - color1[i]) > 0.01);
-      const color2Changed = prevColors.current.color2.some((c, i) => Math.abs(c - color2[i]) > 0.01);
-      
-      // Use faster lerp when colors change, slower for smooth animation
-      const lerpRate = (color1Changed || color2Changed) ? 0.25 : 0.15;
-      
-      uniforms.u_color1.value.lerp(targetColor1, lerpRate);
-      uniforms.u_color2.value.lerp(targetColor2, lerpRate);
-      
-      // Update previous colors
-      if (color1Changed) prevColors.current.color1 = [...color1];
-      if (color2Changed) prevColors.current.color2 = [...color2];
-      
-      // Update other uniforms
-      uniforms.u_speed.value = waveSpeed;
-      uniforms.u_scale.value = waveScale;
-      uniforms.u_mouseRadius.value = mouseRadius;
-      uniforms.u_enableMouse.value = enableMouseInteraction;
-    }
-  });
-
-  const handlePointerMove = useCallback((e) => {
-    if (!enableMouseInteraction) return;
-    const rect = gl.domElement.getBoundingClientRect();
-    mouseRef.current.set(
-      e.clientX - rect.left,
-      rect.height - (e.clientY - rect.top)
-    );
-  }, [enableMouseInteraction, gl]);
-
-  return (
-    <>
-      <mesh ref={mesh} scale={[viewport.width, viewport.height, 1]}>
-        <planeGeometry args={[1, 1]} />
-        <shaderMaterial
-          vertexShader={ditherVertexShader}
-          fragmentShader={ditherFragmentShader}
-          uniforms={uniforms}
-        />
-      </mesh>
-      
-      <mesh
-        onPointerMove={handlePointerMove}
-        position={[0, 0, 0.01]}
-        scale={[viewport.width, viewport.height, 1]}
-        visible={false}
-      >
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial transparent opacity={0} />
-      </mesh>
-    </>
-  );
-}
-
-export function Dither({
-  waveSpeed = 0.02,
-  waveScale = 8.0,
-  color1 = [0.1, 0.1, 0.2],
-  color2 = [0.3, 0.4, 0.5],
-  enableMouseInteraction = true,
-  mouseRadius = 0.2,
-}) {
-  return (
-    <Canvas
-      className="dither-container"
-      camera={{ position: [0, 0, 1] }}
-      dpr={[1, 2]}
-      gl={{ antialias: false, alpha: true }}
-    >
-      <SimpleDither
-        waveSpeed={waveSpeed}
-        waveScale={waveScale}
-        color1={color1}
-        color2={color2}
-        enableMouseInteraction={enableMouseInteraction}
-        mouseRadius={mouseRadius}
-      />
-    </Canvas>
-  );
-}
+// Old SimpleDither removed - now using optimized Dither component from components/Dither.jsx
 
 
 /* ======================== */
@@ -1780,7 +1648,7 @@ const cardData = [
     title: "Client Request",
     description: "HTML site to help construction workers estimate cost around the Bay Area.",
     label: "Construction Calculator",
-    image: "./assets/constructionCalcSS.png",
+    image: "/constructionCalcSS.png",
     link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
   },
   {
@@ -1788,7 +1656,7 @@ const cardData = [
     title: "React Portfolio",
     description: "Interactive portfolio website",
     label: "Web Dev",
-    image: "./assets/portfolioSS.png",
+    image: "/portfolioSS.png",
     link: "https://mported.dev/"
   },
   {
@@ -1796,7 +1664,7 @@ const cardData = [
     title: "GalaDeer",
     description: "Playing Card Programmed in Lua",
     label: "Inspired by Marvel Snap",
-    image: "./assets/galadeerSS.jpg",
+    image: "/galadeerSS.jpg",
     link: "https://github.com/Mported/Project3---GalaDeer"
   },
   {
@@ -1804,7 +1672,7 @@ const cardData = [
     title: "Severence : Get to the OTC!",
     description: "A game inspired by the show \"Severance\"",
     label: "JavaScript Game utilizing the Phaser Index",
-    image: "./assets/severenceSS.png",
+    image: "/severenceSS.png",
     link: "https://mported.github.io/MakeAFakeFinal/"
   },
   {
@@ -1812,7 +1680,7 @@ const cardData = [
     title: "Solitaire",
     description: "Recreating one of my favorite games",
     label: "Programmed in Lua",
-    image: "./assets/solitaireSS.jpg",
+    image: "/solitaireSS.jpg",
     link: "https://github.com/Mported/solitaireGame"
   },
   {
@@ -1820,7 +1688,7 @@ const cardData = [
     title: "LEBRON WATCH OUT",
     description: "Funny Lebron Game",
     label: "Phaser Index Work",
-    image: "./assets/lebronSS.png",
+    image: "/lebronSS.png",
     link: "https://mported.github.io/endlessRunner/"
   },
 ];
@@ -2380,7 +2248,7 @@ const MagicBento = ({
               >
                 {card.image && (
                   <div className="card__image">
-                    <img src={card.image} alt={card.title} />
+                    <img src={card.image} alt={card.title} loading="lazy" />
                   </div>
                 )}
                 <div className="card__header">
@@ -2518,7 +2386,7 @@ const MagicBento = ({
             >
               {card.image && (
                 <div className="card__image">
-                  <img src={card.image} alt={card.title} />
+                  <img src={card.image} alt={card.title} loading="lazy" />
                 </div>
               )}
               <div className="card__header">
