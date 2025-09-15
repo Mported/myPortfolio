@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite'
-import { resolve as pathResolve } from 'path'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
@@ -7,12 +6,8 @@ export default defineConfig({
   // Use repository name as base for GitHub Pages project site
   base: '/myPortfolio/',
   resolve: {
-    // avoid duplicate React / scheduler copies (fixes missing 'unstable_scheduleCallback' export)
-    dedupe: ['react', 'react-dom', 'scheduler'],
-    alias: {
-      // point any 'scheduler' imports to the single copy in this project's node_modules
-      'scheduler': pathResolve(__dirname, 'node_modules', 'scheduler')
-    }
+  // avoid duplicate React copies
+  dedupe: ['react', 'react-dom']
   },
   plugins: [react()],
   define: {
