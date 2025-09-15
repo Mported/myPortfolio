@@ -4,7 +4,8 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/',
+  // Use repository name as base for GitHub Pages project site
+  base: '/myPortfolio/',
   resolve: {
     // avoid duplicate React / scheduler copies (fixes missing 'unstable_scheduleCallback' export)
     dedupe: ['react', 'react-dom', 'scheduler'],

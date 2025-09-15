@@ -310,7 +310,6 @@ export default function Dither({
 
 	const onCreated = useCallback(({ gl, scene }) => {
 		gl.setClearColor(0x000000, 0);
-		gl.physicallyCorrectLights = false; // Disable for performance
 		scene.matrixAutoUpdate = false; // Static scene optimization
 	}, []);
 

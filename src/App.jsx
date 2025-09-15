@@ -20,6 +20,34 @@ import * as THREE from "three";
 import './App.css';
 import './Dither.css';
 
+// Helper to build public asset URLs that respect Vite base (works in dev and Pages)
+const asset = (p) => {
+      const base = (import.meta.env.BASE_URL || '/').replace(/\/$/, '/');
+      // normalize duplicate slashes (not touching schemes as we only build root-relative paths)
+      return (`${base}${p}`).replace(/\/{2,}/g, '/');
+};
+
+// Resolve images from the public folder for consistent dev + Pages behavior
+// Place files under: public/assets/<name>
+const resolveAsset = (name) => asset(`assets/${name}`);
+
+// tiny SVG placeholder as data URL (shows when a public asset is missing)
+const FALLBACK_IMG =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(`
+  <svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
+    <defs>
+      <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0%" stop-color="#0a0a0a"/>
+        <stop offset="100%" stop-color="#1a1a2e"/>
+      </linearGradient>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#g)"/>
+    <text x="50%" y="50%" fill="#00ff88" font-size="20" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" dominant-baseline="middle">
+      Image not found
+    </text>
+  </svg>`);
+
 // Lazy-load Dither for performance
 const Dither = lazy(() => import('./components/Dither'));
 
@@ -31,6 +59,55 @@ const Dither = lazy(() => import('./components/Dither'));
 // UTILITY COMPONENTS
 // Small reusable components
 // ========================
+
+// Image component that tries multiple extensions in public/assets until one loads
+const SmartImg = ({ src: nameOrUrl, alt = '', className = '', loading = 'lazy', style }) => {
+  const exts = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
+  // derive basename from provided string (accept full URL or filename)
+  const deriveBase = (s) => {
+    if (!s) return '';
+    // strip query/hash
+    const clean = String(s).split('?')[0].split('#')[0];
+    // get last path segment
+    const last = clean.substring(clean.lastIndexOf('/') + 1);
+    // drop extension if present
+    const dot = last.lastIndexOf('.');
+    return dot > 0 ? last.substring(0, dot) : last;
+  };
+  const base = deriveBase(nameOrUrl);
+  // try original extension first (if provided), then the rest
+  const originalExt = (() => {
+    const clean = String(nameOrUrl || '');
+    const last = clean.split('?')[0].split('#')[0];
+    const dot = last.lastIndexOf('.');
+    return dot > 0 ? last.substring(dot + 1).toLowerCase() : null;
+  })();
+  const orderedExts = originalExt && exts.includes(originalExt)
+    ? [originalExt, ...exts.filter(e => e !== originalExt)]
+    : exts;
+
+  const [idx, setIdx] = React.useState(0);
+  const candidates = React.useMemo(
+    () => orderedExts.map(ext => asset(`assets/${base}.${ext}`)),
+    [base, JSON.stringify(orderedExts)]
+  );
+  const onError = React.useCallback(() => {
+    setIdx((i) => (i + 1 < candidates.length ? i + 1 : i));
+  }, [candidates.length]);
+  const current = candidates[idx];
+  // Hide if we exhausted all candidates
+  if (!base || idx >= candidates.length) return null;
+  return (
+    <img
+      src={current}
+      alt={alt}
+      className={className}
+      loading={loading}
+      style={style}
+      onError={onError}
+    />
+  );
+};
 
 // CountUp Animation Component
 const CountUpText = ({ targetNumber, duration = 2000, className = "" }) => {
@@ -825,29 +902,21 @@ const ProfileCardComponent = ({
           <div className="pc-shine" />
           <div className="pc-glare" />
           <div className="pc-content pc-avatar-content">
-            <img
+            <SmartImg
               className="avatar"
               src={avatarUrl}
               alt={`${name || "User"} avatar`}
               loading="lazy"
-              onError={(e) => {
-                const target = e.target;
-                target.style.display = "none";
-              }}
             />
             {showUserInfo && (
               <div className="pc-user-info">
                 <div className="pc-user-details">
                   <div className="pc-mini-avatar">
-                    <img
+                    <SmartImg
                       src={miniAvatarUrl || avatarUrl}
                       alt={`${name || "User"} mini avatar`}
                       loading="lazy"
-                      onError={(e) => {
-                        const target = e.target;
-                        target.style.opacity = "0.5";
-                        target.src = avatarUrl;
-                      }}
+                      className=""
                     />
                   </div>
                   <div className="pc-user-text">
@@ -1317,8 +1386,8 @@ const myPortfolio = () => {
           }}
         >
           <ProfileCard 
-            avatarUrl="/IMG_3641.jpeg"
-            miniAvatarUrl="/IMG_3641.jpeg"
+            avatarUrl={resolveAsset('IMG_3641.jpeg')}
+            miniAvatarUrl={resolveAsset('IMG_3641.jpeg')}
             name="Miguel Comonfort"
             title="Game Developer & Frontend Engineer"
             handle="miguelseaa"
@@ -1365,7 +1434,7 @@ const myPortfolio = () => {
               </div>
               <div className="resume-preview">
                 <iframe
-                  src="/miguelComonfortResumePortfolio.pdf"
+                  src={asset('assets/miguelComonfortResumePortfolio.pdf')}
                   width="100%"
                   height="100%"
                   style={{
@@ -1378,14 +1447,14 @@ const myPortfolio = () => {
               </div>
               <div className="resume-actions">
                 <a
-                  href="/miguelComonfortResumePortfolio.pdf"
+                  href={asset('assets/miguelComonfortResumePortfolio.pdf')}
                   download="miguelComonfortResumePortfolio.pdf"
                   className="download-btn cursor-target"
                 >
                   Download Resume
                 </a>
                 <a
-                  href="/miguelComonfortResumePortfolio.pdf"
+                  href={asset('assets/miguelComonfortResumePortfolio.pdf')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="view-btn cursor-target"
@@ -1648,7 +1717,7 @@ const cardData = [
     title: "Client Request",
     description: "HTML site to help construction workers estimate cost around the Bay Area.",
     label: "Construction Calculator",
-    image: "/constructionCalcSS.png",
+  image: resolveAsset('constructionCalcSS.png'),
     link: "https://mported.github.io/BayAreaConstructionCostCalculator/"
   },
   {
@@ -1656,7 +1725,7 @@ const cardData = [
     title: "React Portfolio",
     description: "Interactive portfolio website",
     label: "Web Dev",
-    image: "/portfolioSS.png",
+  image: resolveAsset('portfolioSS.png'),
     link: "https://mported.dev/"
   },
   {
@@ -1664,7 +1733,7 @@ const cardData = [
     title: "GalaDeer",
     description: "Playing Card Programmed in Lua",
     label: "Inspired by Marvel Snap",
-    image: "/galadeerSS.jpg",
+  image: resolveAsset('galadeerSS.jpg'),
     link: "https://github.com/Mported/Project3---GalaDeer"
   },
   {
@@ -1672,7 +1741,7 @@ const cardData = [
     title: "Severence : Get to the OTC!",
     description: "A game inspired by the show \"Severance\"",
     label: "JavaScript Game utilizing the Phaser Index",
-    image: "/severenceSS.png",
+  image: resolveAsset('severenceSS.png'),
     link: "https://mported.github.io/MakeAFakeFinal/"
   },
   {
@@ -1680,7 +1749,7 @@ const cardData = [
     title: "Solitaire",
     description: "Recreating one of my favorite games",
     label: "Programmed in Lua",
-    image: "/solitaireSS.jpg",
+  image: resolveAsset('solitaireSS.jpg'),
     link: "https://github.com/Mported/solitaireGame"
   },
   {
@@ -1688,7 +1757,7 @@ const cardData = [
     title: "LEBRON WATCH OUT",
     description: "Funny Lebron Game",
     label: "Phaser Index Work",
-    image: "/lebronSS.png",
+  image: resolveAsset('lebronSS.png'),
     link: "https://mported.github.io/endlessRunner/"
   },
 ];
@@ -2248,7 +2317,7 @@ const MagicBento = ({
               >
                 {card.image && (
                   <div className="card__image">
-                    <img src={card.image} alt={card.title} loading="lazy" />
+                    <SmartImg src={card.image} alt={card.title} loading="lazy" />
                   </div>
                 )}
                 <div className="card__header">
@@ -2386,7 +2455,7 @@ const MagicBento = ({
             >
               {card.image && (
                 <div className="card__image">
-                  <img src={card.image} alt={card.title} loading="lazy" />
+                  <SmartImg src={card.image} alt={card.title} loading="lazy" />
                 </div>
               )}
               <div className="card__header">
