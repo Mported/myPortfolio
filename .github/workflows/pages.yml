@@ -17,9 +17,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./MportedDEV
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,11 +26,24 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Determine app directory
+        id: setdir
+        shell: bash
+        run: |
+          APP_DIR='.'
+          if [ -d "./MportedDEV" ]; then APP_DIR='./MportedDEV'; fi
+          echo "APP_DIR=$APP_DIR" >> $GITHUB_ENV
+          echo "App directory: $APP_DIR"
+
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd "$APP_DIR"
+          npm install
 
       - name: Build
-        run: npm run build
+        run: |
+          cd "$APP_DIR"
+          npm run build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -41,7 +51,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./MportedDEV/dist
+          path: ${{ env.APP_DIR }}/dist
 
   deploy:
     environment:
