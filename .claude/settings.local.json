@@ -43,7 +43,8 @@
       "Bash(mkdir:*)",
       "Bash(cp:*)",
       "WebSearch",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
