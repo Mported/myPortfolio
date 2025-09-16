@@ -24,6 +24,10 @@ export default defineConfig(({ mode }) => {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            // More granular Three.js chunking for better tree-shaking
+            if (id.includes('three/src/core') || id.includes('three/src/math')) return 'three-core';
+            if (id.includes('three/src/materials') || id.includes('three/src/objects')) return 'three-objects';
+            if (id.includes('three/src/renderers')) return 'three-renderer';
             if (id.includes('three') || id.includes('@react-three')) return 'three-vendors';
             if (id.includes('framer-motion')) return 'framer-motion';
             if (id.includes('gsap')) return 'gsap';
@@ -31,8 +35,18 @@ export default defineConfig(({ mode }) => {
             return 'vendor';
           }
         }
+      },
+      external: (id) => {
+        // Don't externalize anything for web build
+        return false;
+      },
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false
       }
     },
+    minify: 'esbuild'
   },
   server: {
     sourcemap: false,
@@ -44,7 +58,8 @@ export default defineConfig(({ mode }) => {
   },
   esbuild: {
     sourcemap: false,
-    target: 'esnext'
+    target: 'esnext',
+    drop: ['console', 'debugger']
   },
   optimizeDeps: {
     // ensure scheduler is pre-bundled so all imports reference the same module

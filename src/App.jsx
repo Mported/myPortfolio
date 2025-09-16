@@ -13,7 +13,8 @@ import { Observer } from "gsap/Observer";
 
 // 3D Graphics
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
+// Import only specific Three.js modules used in this file
+import { Color, Vector3, MathUtils } from "three";
 
 
 // Styles

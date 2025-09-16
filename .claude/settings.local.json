@@ -10,7 +10,9 @@
       "Bash(npm run build:pages:*)",
       "Bash(git push:*)",
       "Bash(gh run list:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(npm run build:cpanel:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

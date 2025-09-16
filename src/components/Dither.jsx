@@ -1,6 +1,13 @@
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+// Import only the specific Three.js modules we need for performance
+import {
+  PlaneGeometry,
+  ShaderMaterial,
+  MeshBasicMaterial,
+  Vector2,
+  Color
+} from 'three';
 
 // ReactBits-inspired optimized dither shaders
 const vertex = `
@@ -131,7 +138,7 @@ void main() {
 `;
 
 // Memoized geometry and material creation outside component
-const PLANE_GEOMETRY = new THREE.PlaneGeometry(1, 1);
+const PLANE_GEOMETRY = new PlaneGeometry(1, 1);
 
 function DitherPlane({
 	color1 = [0.05, 0.05, 0.12],
@@ -147,9 +154,9 @@ function DitherPlane({
 
 	// Memoize uniforms with stable references
 	const uniforms = useMemo(() => ({
-		u_resolution: { value: new THREE.Vector2() },
-		u_color1: { value: new THREE.Color() },
-		u_color2: { value: new THREE.Color() },
+		u_resolution: { value: new Vector2() },
+		u_color1: { value: new Color() },
+		u_color2: { value: new Color() },
 		u_time: { value: 0 },
 		u_pixelSize: { value: pixelSize },
 		u_ditherIntensity: { value: ditherIntensity },
@@ -205,7 +212,7 @@ function DitherPlane({
 	// Memoize material to prevent recreation
 	const material = useMemo(() => {
 		try {
-			const shaderMaterial = new THREE.ShaderMaterial({
+			const shaderMaterial = new ShaderMaterial({
 				vertexShader: vertex,
 				fragmentShader: fragment,
 				uniforms,
@@ -218,11 +225,11 @@ function DitherPlane({
 				return shaderMaterial;
 			} else {
 				console.warn('Shader compilation may have failed, using fallback material');
-				return new THREE.MeshBasicMaterial({ color: 0x1a1a2e });
+				return new MeshBasicMaterial({ color: 0x1a1a2e });
 			}
 		} catch (err) {
 			console.error('Failed to create shader material:', err);
-			return new THREE.MeshBasicMaterial({ color: 0x1a1a2e });
+			return new MeshBasicMaterial({ color: 0x1a1a2e });
 		}
 	}, [uniforms]);
 
