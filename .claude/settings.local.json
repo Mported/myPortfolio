@@ -5,7 +5,10 @@
       "Bash(powershell:*)",
       "Bash(git rm:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git remote get-url:*)",
+      "Bash(npm run build:pages:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
