@@ -8,7 +8,9 @@
       "Bash(git commit:*)",
       "Bash(git remote get-url:*)",
       "Bash(npm run build:pages:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh run list:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
