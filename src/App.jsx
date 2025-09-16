@@ -49,7 +49,7 @@ const FALLBACK_IMG =
   </svg>`);
 
 // Lazy-load Dither for performance
-const Dither = lazy(() => import('../components/Dither'));
+const Dither = lazy(() => import('./components/Dither'));
 
 
 
